@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Погода v3</title>
+    <title>Погода v4</title>
     <style>
         body {
             background-color: #000000;
@@ -51,13 +51,10 @@
 
     <div id="clock">00:00</div>
     <div id="temp">--°</div>
-    <div id="desc">Оновлення...</div>
+    <div id="desc">Завантаження v4...</div>
     <div id="details">Вітер: -- км/год</div>
 
     <script>
-        var lat = 50.9077;
-        var lon = 34.7981;
-
         function updateClock() {
             var now = new Date();
             var hours = now.getHours();
@@ -67,39 +64,30 @@
             document.getElementById('clock').innerHTML = hours + ':' + minutes;
         }
 
-        function getWeatherText(code) {
-            if (code === 0) return 'Ясно';
-            if (code === 1 || code === 2 || code === 3) return 'Мінлива хмарність';
-            if (code === 45 || code === 48) return 'Туман';
-            if (code >= 51 && code <= 55) return 'Мряка';
-            if (code >= 61 && code <= 65) return 'Дощ';
-            if (code >= 71 && code <= 77) return 'Сніг';
-            if (code >= 80 && code <= 82) return 'Злива';
-            if (code >= 95) return 'Гроза';
-            return 'Хмарно';
-        }
-
         function fetchWeather() {
-            var url = 'https://open-meteo.com' + lat + '&longitude=' + lon + '&current_weather=true';
             var xhr = new XMLHttpRequest();
+            var url = 'https://wttr.in';
+            
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            var current = data.current_weather;
-                            var temp = Math.round(current.temperature);
+                            var current = data.current_condition[0];
+                            var temp = parseInt(current.temp_C, 10);
                             var sign = temp > 0 ? '+' : '';
-                            
+                            var desc = (current.lang_uk && current.lang_uk[0]) ? current.lang_uk[0].value : current.weatherDesc[0].value;
+                            var wind = current.windspeedKmph;
+
                             document.getElementById('temp').innerHTML = sign + temp + '°';
-                            document.getElementById('desc').innerHTML = getWeatherText(current.weathercode);
-                            document.getElementById('details').innerHTML = 'Вітер: ' + current.windspeed + ' км/год';
+                            document.getElementById('desc').innerHTML = desc;
+                            document.getElementById('details').innerHTML = 'Вітер: ' + wind + ' км/год';
                         } catch (e) {
-                            document.getElementById('desc').innerHTML = 'Помилка даних';
+                            document.getElementById('desc').innerHTML = 'Помилка: ' + e.message;
                         }
                     } else {
-                        document.getElementById('desc').innerHTML = 'Помилка: ' + xhr.status;
+                        document.getElementById('desc').innerHTML = 'Помилка мережі: ' + xhr.status;
                     }
                 }
             };
