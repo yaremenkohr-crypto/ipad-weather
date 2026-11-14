@@ -256,7 +256,7 @@ function ratesFromNbu() {
   });
 }
 
-function loadRates() {
+function loadRatesPrivat() {
   getJSON('https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5', function (list) {
     var i, r, el, found = false;
     for (i = 0; i < list.length; i++) {
@@ -270,6 +270,25 @@ function loadRates() {
     if (!found) { ratesFromNbu(); }
   }, ratesFromNbu);
 }
+
+function loadRatesMono() {
+  getJSON('https://api.monobank.ua/bank/currency', function (list) {
+    var i, r, el, found = false;
+    for (i = 0; i < list.length; i++) {
+      r = list[i];
+      if (r.currencyCodeB !== 980 || !r.rateBuy || !r.rateSell) { continue; }
+      el = r.currencyCodeA === 840 ? $('usd') : (r.currencyCodeA === 978 ? $('eur') : null);
+      if (el) {
+        el.innerHTML = money(r.rateBuy) + ' <span class="sep">/</span> ' + money(r.rateSell);
+        found = true;
+      }
+    }
+    if (!found) { loadRatesPrivat(); }
+  }, loadRatesPrivat);
+}
+
+/* Порядок джерел: monobank -> ПриватБанк -> НБУ */
+function loadRates() { loadRatesMono(); }
 
 /* ---------- Запуск ---------- */
 tick();
