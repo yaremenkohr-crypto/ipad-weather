@@ -2,50 +2,92 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<title>Погода Суми</title>
+<title>Годинник і погода</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: #000000;
-  color: #ffffff;
-  overflow: hidden;
-  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-#wrap {
-  width: 100%;
-  height: 100vh;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  text-align: center;
-}
-#clock { font-size: 18vh; font-weight: 300; line-height: 1.1; }
-#temp { font-size: 30vh; font-weight: 200; line-height: 1.1; margin-top: 2vh; }
-#desc { font-size: 6vh; margin-top: 2vh; padding: 0 5%; line-height: 1.2; }
-#extra { font-size: 5vh; margin-top: 4vh; color: #dddddd; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #05070f; color: #ffffff; overflow: hidden;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+#wrap { box-sizing: border-box; width: 100%; height: 100vh; padding: 1.5vh 2vw;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column; }
+.card { background: #161a26; border-radius: 2vh; box-sizing: border-box; }
+.row { display: -webkit-box; display: -webkit-flex; display: flex; }
+.center { -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center; }
+
+#date { height: 8vh; line-height: 8vh; font-size: 5vh; text-align: center; color: #c9ccd6; white-space: nowrap; }
+#clockCard { -webkit-box-flex: 5; -webkit-flex: 5 1 0; flex: 5 1 0; margin-top: 0.5vh; }
+#clockInner { line-height: 1; white-space: nowrap; }
+#hm { font-size: 32vh; font-weight: 600; }
+#sec { font-size: 13vh; font-weight: 600; color: #8a8a8a; margin-left: 2vw; }
+
+#rates { height: 8vh; margin-top: 1.5vh; font-size: 4vh; white-space: nowrap; }
+.cur { margin: 0 3vw; }
+.cur b { color: #d7d9e0; margin-right: 1vw; }
+.val { color: #43b05c; font-weight: 600; }
+.sep { color: #9a9ca6; }
+
+#bottom { -webkit-box-flex: 4; -webkit-flex: 4 1 0; flex: 4 1 0; margin-top: 1.5vh; }
+#nowCard { -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; padding: 2vh 2vw; margin-right: 1.5vw;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column; }
+#fcCard { -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; padding: 2vh 1vw;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column; }
+.title { font-size: 2.8vh; color: #7e8294; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+#fcCard .title { text-align: center; }
+#nowMain { -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: justify; -webkit-justify-content: space-between; justify-content: space-between; }
+#temp { font-size: 15vh; font-weight: 600; line-height: 1; }
+#icon { height: 15vh; width: 15vh; }
+#desc { font-size: 3.6vh; color: #cfd2dc; min-height: 4.5vh; line-height: 1.2; }
+#info { font-size: 2.6vh; color: #8b8fa0; margin-top: 1.5vh; white-space: nowrap;
+  -webkit-box-pack: justify; -webkit-justify-content: space-between; justify-content: space-between; }
+
+#fc { -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; margin-top: 1vh; }
+.day { -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0; text-align: center;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; }
+.dn { font-size: 2.4vh; color: #b5b8c6; white-space: nowrap; }
+.day img { width: 9vh; height: 9vh; margin: 0 auto; display: block; }
+.hi { font-size: 4vh; font-weight: 600; }
+.lo { font-size: 3.4vh; color: #6f7384; margin-top: 0.5vh; }
+#fcErr { font-size: 3vh; color: #ffffff; text-align: center; padding: 2vh; }
 </style>
 </head>
 <body>
 <div id="wrap">
-  <div id="clock">--:--</div>
-  <div id="temp">--</div>
-  <div id="desc">Завантаження...</div>
-  <div id="extra">&nbsp;</div>
+  <div id="date">&nbsp;</div>
+
+  <div id="clockCard" class="card row center">
+    <div id="clockInner"><span id="hm">--:--</span><span id="sec">:--</span></div>
+  </div>
+
+  <div id="rates" class="card row center">
+    <span class="cur"><b>USD</b><span class="val" id="usd">--</span></span>
+    <span class="cur"><b>EUR</b><span class="val" id="eur">--</span></span>
+  </div>
+
+  <div id="bottom" class="row">
+    <div id="nowCard" class="card">
+      <div class="title">Погода зараз &bull; Суми</div>
+      <div id="nowMain" class="row">
+        <div id="temp">--</div>
+        <img id="icon" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
+      </div>
+      <div id="desc">Завантаження...</div>
+      <div id="info" class="row">
+        <span id="wind">Вітер: --</span><span id="hum">Вологість: --</span><span id="pres">Тиск: --</span>
+      </div>
+    </div>
+    <div id="fcCard" class="card">
+      <div class="title">Прогноз на 4 дні</div>
+      <div id="fc" class="row"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -53,98 +95,190 @@ var API_KEY = 'c4365ef1c19e871a99553ab9f3cef6eb';
 var LAT = 50.9077;
 var LON = 34.7981;
 var WEATHER_INTERVAL = 15 * 60 * 1000;
-var CLOCK_INTERVAL = 10 * 1000;
+var RATES_INTERVAL = 30 * 60 * 1000;
 var TIMEOUT = 20 * 1000;
 
-var jsonpCounter = 0;
+var MONTHS = ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+var DAYS_FULL = ['неділя','понеділок','вівторок','середа','четвер','п’ятниця','субота'];
+var DAYS_SHORT = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 
-function pad(n) {
-  return (n < 10 ? '0' : '') + n;
-}
+function $(id) { return document.getElementById(id); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+function fmtTemp(t) { var r = Math.round(t); return (r > 0 ? '+' + r : String(r)) + '&deg;'; }
+function iconUrl(code) { return 'https://openweathermap.org/img/wn/' + code + '@2x.png'; }
 
-function updateClock() {
+/* ---------- Годинник ---------- */
+function tick() {
   var d = new Date();
-  document.getElementById('clock').innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  $('hm').innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  $('sec').innerHTML = ':' + pad(d.getSeconds());
+  $('date').innerHTML = DAYS_FULL[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
 }
 
-function showError(text) {
-  document.getElementById('desc').innerHTML = String(text);
-}
-
-function capitalize(s) {
-  if (!s) { return ''; }
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function handleData(data) {
-  try {
-    if (!data) {
-      showError('Помилка: порожня відповідь сервера');
-      return;
-    }
-    if (String(data.cod) !== '200') {
-      showError('Помилка API ' + data.cod + ': ' + (data.message || 'невідома помилка'));
-      return;
-    }
-    var t = Math.round(data.main.temp);
-    var tText = t > 0 ? '+' + t : String(t);
-    var desc = (data.weather && data.weather.length > 0) ? data.weather[0].description : '';
-    var wind = Math.round(data.wind.speed * 10) / 10;
-    document.getElementById('temp').innerHTML = tText + '&deg;';
-    document.getElementById('desc').innerHTML = capitalize(desc);
-    document.getElementById('extra').innerHTML =
-      'Вітер: ' + wind + ' м/с &nbsp;&nbsp; Вологість: ' + data.main.humidity + '%';
-  } catch (e) {
-    showError('Помилка обробки даних: ' + e.message);
-  }
-}
-
-function loadWeather() {
+/* ---------- JSONP (OpenWeatherMap) ---------- */
+var jsonpCounter = 0;
+function jsonp(url, onOk, onFail) {
   jsonpCounter++;
-  var cbName = 'owmCb' + new Date().getTime() + '_' + jsonpCounter;
+  var cb = 'owmCb' + new Date().getTime() + '_' + jsonpCounter;
   var script = document.createElement('script');
   var finished = false;
   var timer;
-
   function cleanup() {
     finished = true;
     clearTimeout(timer);
-    try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+    try { delete window[cb]; } catch (e) { window[cb] = undefined; }
     if (script.parentNode) { script.parentNode.removeChild(script); }
   }
-
-  window[cbName] = function (data) {
-    if (finished) { return; }
-    cleanup();
-    handleData(data);
-  };
-
+  window[cb] = function (data) { if (finished) { return; } cleanup(); onOk(data); };
   script.onerror = function () {
     if (finished) { return; }
     cleanup();
-    showError('Помилка мережі: не вдалося завантажити дані погоди');
+    onFail('Помилка мережі: не вдалося завантажити дані погоди');
   };
-
   timer = setTimeout(function () {
     if (finished) { return; }
     cleanup();
-    showError('Помилка: час очікування відповіді вичерпано');
+    onFail('Помилка: час очікування відповіді вичерпано');
   }, TIMEOUT);
-
-  script.src = 'https://api.openweathermap.org/data/2.5/weather' +
-    '?lat=' + LAT + '&lon=' + LON +
-    '&units=metric&lang=uk' +
-    '&appid=' + API_KEY +
-    '&callback=' + cbName +
-    '&_=' + new Date().getTime();
-
+  script.src = url + '&callback=' + cb + '&_=' + new Date().getTime();
   document.getElementsByTagName('head')[0].appendChild(script);
 }
 
-updateClock();
-loadWeather();
-setInterval(updateClock, CLOCK_INTERVAL);
-setInterval(loadWeather, WEATHER_INTERVAL);
+function owmUrl(path, extra) {
+  return 'https://api.openweathermap.org/data/2.5/' + path +
+    '?lat=' + LAT + '&lon=' + LON + '&units=metric&lang=uk&appid=' + API_KEY + (extra || '');
+}
+
+/* ---------- Поточна погода ---------- */
+function showNowError(text) {
+  $('desc').innerHTML = String(text);
+}
+
+function loadNow() {
+  jsonp(owmUrl('weather'), function (data) {
+    try {
+      if (!data || String(data.cod) !== '200') {
+        showNowError('Помилка API ' + (data ? data.cod : '') + ': ' + (data && data.message ? data.message : 'невідома помилка'));
+        return;
+      }
+      var w = (data.weather && data.weather.length > 0) ? data.weather[0] : null;
+      $('temp').innerHTML = fmtTemp(data.main.temp);
+      $('desc').innerHTML = capitalize(w ? w.description : '');
+      if (w) { $('icon').src = iconUrl(w.icon); }
+      $('wind').innerHTML = 'Вітер: ' + (Math.round(data.wind.speed * 10) / 10) + ' м/с';
+      $('hum').innerHTML = 'Вологість: ' + data.main.humidity + '%';
+      $('pres').innerHTML = 'Тиск: ' + Math.round(data.main.pressure * 0.750062) + ' мм рт. ст.';
+    } catch (e) {
+      showNowError('Помилка обробки даних: ' + e.message);
+    }
+  }, showNowError);
+}
+
+/* ---------- Прогноз на 4 дні ---------- */
+function showFcError(text) {
+  $('fc').innerHTML = '<div id="fcErr">' + String(text) + '</div>';
+}
+
+function loadForecast() {
+  jsonp(owmUrl('forecast', '&cnt=40'), function (data) {
+    try {
+      if (!data || String(data.cod) !== '200') {
+        showFcError('Помилка API ' + (data ? data.cod : '') + ': ' + (data && data.message ? data.message : 'невідома помилка'));
+        return;
+      }
+      var tz = data.city && data.city.timezone ? data.city.timezone : 0;
+      var keys = [];
+      var days = {};
+      var i, e, d, key, h, t;
+      for (i = 0; i < data.list.length; i++) {
+        e = data.list[i];
+        d = new Date((e.dt + tz) * 1000);
+        key = d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+        h = d.getUTCHours();
+        if (!days[key]) {
+          days[key] = { wd: d.getUTCDay(), day: d.getUTCDate(), mon: d.getUTCMonth() + 1,
+                        min: 100, max: -100, icon: '', best: 99 };
+          keys.push(key);
+        }
+        t = days[key];
+        if (e.main.temp_min < t.min) { t.min = e.main.temp_min; }
+        if (e.main.temp_max > t.max) { t.max = e.main.temp_max; }
+        if (Math.abs(h - 13) < t.best && e.weather && e.weather.length > 0) {
+          t.best = Math.abs(h - 13);
+          t.icon = e.weather[0].icon.replace('n', 'd');
+        }
+      }
+      var html = '';
+      for (i = 0; i < keys.length && i < 4; i++) {
+        t = days[keys[i]];
+        html += '<div class="day"><div class="dn">' + DAYS_SHORT[t.wd] + ', ' + pad(t.day) + '.' + pad(t.mon) + '</div>' +
+          '<img src="' + iconUrl(t.icon) + '" alt="">' +
+          '<div class="hi">' + fmtTemp(t.max) + '</div>' +
+          '<div class="lo">' + fmtTemp(t.min) + '</div></div>';
+      }
+      $('fc').innerHTML = html;
+    } catch (e2) {
+      showFcError('Помилка обробки даних: ' + e2.message);
+    }
+  }, showFcError);
+}
+
+/* ---------- Курс валют ---------- */
+function getJSON(url, onOk, onFail) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.timeout = TIMEOUT;
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) { return; }
+    if (xhr.status === 200) {
+      try { onOk(JSON.parse(xhr.responseText)); } catch (e) { onFail(); }
+    } else {
+      onFail();
+    }
+  };
+  xhr.ontimeout = onFail;
+  xhr.send();
+}
+
+function money(v) { return parseFloat(v).toFixed(2) + ' &#8372;'; }
+
+function ratesFromNbu() {
+  getJSON('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json', function (list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].cc === 'USD') { $('usd').innerHTML = money(list[i].rate); }
+      if (list[i].cc === 'EUR') { $('eur').innerHTML = money(list[i].rate); }
+    }
+  }, function () {
+    $('usd').innerHTML = 'немає даних';
+    $('eur').innerHTML = 'немає даних';
+  });
+}
+
+function loadRates() {
+  getJSON('https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5', function (list) {
+    var i, r, el, found = false;
+    for (i = 0; i < list.length; i++) {
+      r = list[i];
+      el = r.ccy === 'USD' ? $('usd') : (r.ccy === 'EUR' ? $('eur') : null);
+      if (el) {
+        el.innerHTML = money(r.buy) + ' <span class="sep">/</span> ' + money(r.sale);
+        found = true;
+      }
+    }
+    if (!found) { ratesFromNbu(); }
+  }, ratesFromNbu);
+}
+
+/* ---------- Запуск ---------- */
+tick();
+loadNow();
+loadForecast();
+loadRates();
+setInterval(tick, 1000);
+setInterval(function () { loadNow(); loadForecast(); }, WEATHER_INTERVAL);
+setInterval(loadRates, RATES_INTERVAL);
 </script>
 </body>
 </html>
