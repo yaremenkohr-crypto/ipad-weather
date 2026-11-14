@@ -1,110 +1,150 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Погода iPad</title>
-    <style>
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: -apple-system, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-flex-direction: column;
-            flex-direction: column;
-            -webkit-justify-content: center;
-            justify-content: center;
-            -webkit-align-items: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        #clock {
-            font-size: 70px;
-            font-weight: 200;
-            margin-bottom: 20px;
-            color: #aaaaaa;
-        }
-        #temp {
-            font-size: 160px;
-            font-weight: 300;
-            line-height: 1;
-            margin: 10px 0;
-        }
-        #desc {
-            font-size: 42px;
-            color: #dddddd;
-            margin-bottom: 30px;
-            text-transform: capitalize;
-        }
-        #details {
-            font-size: 28px;
-            color: #888888;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Погода Суми</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  color: #ffffff;
+  overflow: hidden;
+  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#wrap {
+  width: 100%;
+  height: 100vh;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  text-align: center;
+}
+#clock { font-size: 18vh; font-weight: 300; line-height: 1.1; }
+#temp { font-size: 30vh; font-weight: 200; line-height: 1.1; margin-top: 2vh; }
+#desc { font-size: 6vh; margin-top: 2vh; padding: 0 5%; line-height: 1.2; }
+#extra { font-size: 5vh; margin-top: 4vh; color: #dddddd; }
+</style>
 </head>
 <body>
+<div id="wrap">
+  <div id="clock">--:--</div>
+  <div id="temp">--</div>
+  <div id="desc">Завантаження...</div>
+  <div id="extra">&nbsp;</div>
+</div>
 
-    <div id="clock">00:00</div>
-    <div id="temp">--°</div>
-    <div id="desc">Завантаження...</div>
-    <div id="details">Вітер: -- м/с</div>
+<script>
+var API_KEY = 'c4365ef1c19e871a99553ab9f3cef6eb';
+var LAT = 50.9077;
+var LON = 34.7981;
+var WEATHER_INTERVAL = 15 * 60 * 1000;
+var CLOCK_INTERVAL = 10 * 1000;
+var TIMEOUT = 20 * 1000;
 
-    <script>
-        var apiKey = 'c4365ef1c19e871a99553ab9f3cef6eb';
-        var lat = 50.9077;
-        var lon = 34.7981;
+var jsonpCounter = 0;
 
-        function updateClock() {
-            var now = new Date();
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            if (hours < 10) hours = '0' + hours;
-            if (minutes < 10) minutes = '0' + minutes;
-            document.getElementById('clock').innerHTML = hours + ':' + minutes;
-        }
+function pad(n) {
+  return (n < 10 ? '0' : '') + n;
+}
 
-        function fetchWeather() {
-            var url = 'https://openweathermap.org' + lat + '&lon=' + lon + '&appid=' + apiKey + '&units=metric&lang=uk';
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var temp = Math.round(data.main.temp);
-                            var sign = temp > 0 ? '+' : '';
-                            var desc = data.weather[0].description;
-                            var wind = Math.round(data.wind.speed);
-                            var humidity = data.main.humidity;
+function updateClock() {
+  var d = new Date();
+  document.getElementById('clock').innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
 
-                            document.getElementById('temp').innerHTML = sign + temp + '°';
-                            document.getElementById('desc').innerHTML = desc;
-                            document.getElementById('details').innerHTML = 'Вітер: ' + wind + ' м/с &nbsp;•&nbsp; Вологість: ' + humidity + '%';
-                        } catch (e) {
-                            document.getElementById('desc').innerHTML = 'Помилка даних';
-                        }
-                    } else if (xhr.status === 401) {
-                        document.getElementById('desc').innerHTML = 'Ключ ще активується (зачекайте 10 хв)';
-                    } else {
-                        document.getElementById('desc').innerHTML = 'Помилка сервера: ' + xhr.status;
-                    }
-                }
-            };
-            xhr.send();
-        }
+function showError(text) {
+  document.getElementById('desc').innerHTML = String(text);
+}
 
-        updateClock();
-        setInterval(updateClock, 10000);
+function capitalize(s) {
+  if (!s) { return ''; }
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
-        fetchWeather();
-        setInterval(fetchWeather, 900000);
-    </script>
+function handleData(data) {
+  try {
+    if (!data) {
+      showError('Помилка: порожня відповідь сервера');
+      return;
+    }
+    if (String(data.cod) !== '200') {
+      showError('Помилка API ' + data.cod + ': ' + (data.message || 'невідома помилка'));
+      return;
+    }
+    var t = Math.round(data.main.temp);
+    var tText = t > 0 ? '+' + t : String(t);
+    var desc = (data.weather && data.weather.length > 0) ? data.weather[0].description : '';
+    var wind = Math.round(data.wind.speed * 10) / 10;
+    document.getElementById('temp').innerHTML = tText + '&deg;';
+    document.getElementById('desc').innerHTML = capitalize(desc);
+    document.getElementById('extra').innerHTML =
+      'Вітер: ' + wind + ' м/с &nbsp;&nbsp; Вологість: ' + data.main.humidity + '%';
+  } catch (e) {
+    showError('Помилка обробки даних: ' + e.message);
+  }
+}
+
+function loadWeather() {
+  jsonpCounter++;
+  var cbName = 'owmCb' + new Date().getTime() + '_' + jsonpCounter;
+  var script = document.createElement('script');
+  var finished = false;
+  var timer;
+
+  function cleanup() {
+    finished = true;
+    clearTimeout(timer);
+    try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+    if (script.parentNode) { script.parentNode.removeChild(script); }
+  }
+
+  window[cbName] = function (data) {
+    if (finished) { return; }
+    cleanup();
+    handleData(data);
+  };
+
+  script.onerror = function () {
+    if (finished) { return; }
+    cleanup();
+    showError('Помилка мережі: не вдалося завантажити дані погоди');
+  };
+
+  timer = setTimeout(function () {
+    if (finished) { return; }
+    cleanup();
+    showError('Помилка: час очікування відповіді вичерпано');
+  }, TIMEOUT);
+
+  script.src = 'https://api.openweathermap.org/data/2.5/weather' +
+    '?lat=' + LAT + '&lon=' + LON +
+    '&units=metric&lang=uk' +
+    '&appid=' + API_KEY +
+    '&callback=' + cbName +
+    '&_=' + new Date().getTime();
+
+  document.getElementsByTagName('head')[0].appendChild(script);
+}
+
+updateClock();
+loadWeather();
+setInterval(updateClock, CLOCK_INTERVAL);
+setInterval(loadWeather, WEATHER_INTERVAL);
+</script>
 </body>
 </html>
