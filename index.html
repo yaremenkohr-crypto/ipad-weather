@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Налаштування для повноекранного режиму на iPad -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Погода iPad</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        #clock {
+            font-size: 70px;
+            font-weight: 200;
+            margin-bottom: 20px;
+            color: #aaaaaa;
+        }
+        #temp {
+            font-size: 160px;
+            font-weight: 300;
+            line-height: 1;
+            margin: 10px 0;
+        }
+        #desc {
+            font-size: 42px;
+            color: #dddddd;
+            margin-bottom: 30px;
+        }
+        #details {
+            font-size: 28px;
+            color: #888888;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="clock">00:00</div>
+    <div id="temp">--°</div>
+    <div id="desc">Завантаження...</div>
+    <div id="details">Вітер: -- км/год</div>
+
+    <script>
+        // Координати (зараз вказано Суми)
+        var lat = 50.9077;
+        var lon = 34.7981;
+
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            if (hours < 10) hours = '0' + hours;
+            if (minutes < 10) minutes = '0' + minutes;
+            document.getElementById('clock').innerHTML = hours + ':' + minutes;
+        }
+
+        function getWeatherText(code) {
+            if (code === 0) return 'Ясно';
+            if (code === 1 || code === 2 || code === 3) return 'Мінлива хмарність';
+            if (code === 45 || code === 48) return 'Туман';
+            if (code >= 51 && code <= 55) return 'Мряка';
+            if (code >= 61 && code <= 65) return 'Дощ';
+            if (code >= 71 && code <= 77) return 'Сніг';
+            if (code >= 80 && code <= 82) return 'Злива';
+            if (code >= 95) return 'Гроза';
+            return 'Хмарно';
+        }
+
+        function fetchWeather() {
+            var url = 'https://open-meteo.com' + lat + '&longitude=' + lon + '&current_weather=true';
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var current = data.current_weather;
+                        var temp = Math.round(current.temperature);
+                        var sign = temp > 0 ? '+' : '';
+                        
+                        document.getElementById('temp').innerHTML = sign + temp + '°';
+                        document.getElementById('desc').innerHTML = getWeatherText(current.weathercode);
+                        document.getElementById('details').innerHTML = 'Вітер: ' + current.windspeed + ' км/год';
+                    } else {
+                        document.getElementById('desc').innerHTML = 'Помилка мережі';
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Запуск годинника і погоди
+        updateClock();
+        setInterval(updateClock, 10000);
+
+        fetchWeather();
+        // Оновлення погоди кожні 15 хвилин (900 000 мс)
+        setInterval(fetchWeather, 900000);
+    </script>
+</body>
+</html>
