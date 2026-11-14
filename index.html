@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Налаштування для повноекранного режиму на iPad -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Погода iPad</title>
@@ -56,7 +55,6 @@
     <div id="details">Вітер: -- км/год</div>
 
     <script>
-        // Координати (зараз вказано Суми)
         var lat = 50.9077;
         var lon = 34.7981;
 
@@ -82,34 +80,43 @@
         }
 
         function fetchWeather() {
-            var url = 'https://open-meteo.com' + lat + '&longitude=' + lon + '&current_weather=true';
+            // Використовуємо проксі-шлюз, сумісний зі старим iOS 10
+            var targetUrl = encodeURIComponent('https://open-meteo.com' + lat + '&longitude=' + lon + '&current_weather=true');
+            var url = 'https://allorigins.win' + targetUrl;
+            
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        var data = JSON.parse(xhr.responseText);
-                        var current = data.current_weather;
-                        var temp = Math.round(current.temperature);
-                        var sign = temp > 0 ? '+' : '';
-                        
-                        document.getElementById('temp').innerHTML = sign + temp + '°';
-                        document.getElementById('desc').innerHTML = getWeatherText(current.weathercode);
-                        document.getElementById('details').innerHTML = 'Вітер: ' + current.windspeed + ' км/год';
+                        try {
+                            var wrapper = JSON.parse(xhr.responseText);
+                            var data = JSON.parse(wrapper.contents);
+                            var current = data.current_weather;
+                            var temp = Math.round(current.temperature);
+                            var sign = temp > 0 ? '+' : '';
+                            
+                            document.getElementById('temp').innerHTML = sign + temp + '°';
+                            document.getElementById('desc').innerHTML = getWeatherText(current.weathercode);
+                            document.getElementById('details').innerHTML = 'Вітер: ' + current.windspeed + ' км/год';
+                        } catch (e) {
+                            document.getElementById('desc').innerHTML = 'Помилка даних';
+                        }
                     } else {
-                        document.getElementById('desc').innerHTML = 'Помилка мережі';
+                        document.getElementById('desc').innerHTML = 'Помилка сервера: ' + xhr.status;
                     }
                 }
+            };
+            xhr.onerror = function() {
+                document.getElementById('desc').innerHTML = 'Блокування SSL (iOS 10)';
             };
             xhr.send();
         }
 
-        // Запуск годинника і погоди
         updateClock();
         setInterval(updateClock, 10000);
 
         fetchWeather();
-        // Оновлення погоди кожні 15 хвилин (900 000 мс)
         setInterval(fetchWeather, 900000);
     </script>
 </body>
