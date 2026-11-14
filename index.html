@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>Погода v4</title>
+    <title>Погода v5</title>
     <style>
         body {
             background-color: #000000;
@@ -51,10 +51,14 @@
 
     <div id="clock">00:00</div>
     <div id="temp">--°</div>
-    <div id="desc">Завантаження v4...</div>
-    <div id="details">Вітер: -- км/год</div>
+    <div id="desc">Завантаження v5...</div>
+    <div id="details">Вологість: --%</div>
 
     <script>
+        // Координати для Сум
+        var lat = 50.9077;
+        var lon = 34.7981;
+
         function updateClock() {
             var now = new Date();
             var hours = now.getHours();
@@ -64,9 +68,22 @@
             document.getElementById('clock').innerHTML = hours + ':' + minutes;
         }
 
+        function translateWeather(w) {
+            if (!w) return 'Хмарно';
+            if (w.indexOf('clear') !== -1) return 'Ясно';
+            if (w.indexOf('pcloudy') !== -1 || w.indexOf('mcloudy') !== -1) return 'Мінлива хмарність';
+            if (w.indexOf('cloudy') !== -1) return 'Хмарно';
+            if (w.indexOf('humid') !== -1) return 'Туман / Волого';
+            if (w.indexOf('lightrain') !== -1) return 'Невеликий дощ';
+            if (w.indexOf('rain') !== -1) return 'Дощ';
+            if (w.indexOf('snow') !== -1) return 'Сніг';
+            if (w.indexOf('ts') !== -1) return 'Гроза';
+            return 'Хмарно';
+        }
+
         function fetchWeather() {
             var xhr = new XMLHttpRequest();
-            var url = 'https://wttr.in';
+            var url = 'https://7timer.info' + lon + '&lat=' + lat + '&ac=0&unit=metric&output=json&tzshift=0';
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
@@ -74,17 +91,17 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            var current = data.current_condition[0];
-                            var temp = parseInt(current.temp_C, 10);
+                            var current = data.dataseries[0];
+                            var temp = Math.round(current.temp2m);
                             var sign = temp > 0 ? '+' : '';
-                            var desc = (current.lang_uk && current.lang_uk[0]) ? current.lang_uk[0].value : current.weatherDesc[0].value;
-                            var wind = current.windspeedKmph;
+                            var desc = translateWeather(current.weather);
+                            var humidity = current.rh2m;
 
                             document.getElementById('temp').innerHTML = sign + temp + '°';
                             document.getElementById('desc').innerHTML = desc;
-                            document.getElementById('details').innerHTML = 'Вітер: ' + wind + ' км/год';
+                            document.getElementById('details').innerHTML = 'Вологість: ' + humidity;
                         } catch (e) {
-                            document.getElementById('desc').innerHTML = 'Помилка: ' + e.message;
+                            document.getElementById('desc').innerHTML = 'Помилка даних: ' + e.message;
                         }
                     } else {
                         document.getElementById('desc').innerHTML = 'Помилка мережі: ' + xhr.status;
